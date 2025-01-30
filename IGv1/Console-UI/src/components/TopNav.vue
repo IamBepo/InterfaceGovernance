@@ -1,0 +1,28 @@
+<script setup>
+
+</script>
+
+<template>
+    <div style="display: flex; align-items: center; width: 100%; position: relative;">
+        <div style="display: flex; align-items: center; margin: 0 auto;">
+            <div style="width: 50vh; margin-right: 2px;">
+                <n-input placeholder="搜索接口" size="large" />
+            </div>
+            <div>
+                <n-button type="primary" size="large">
+                    Search
+                </n-button>
+            </div>
+        </div>
+
+        <div style="margin-left: auto; position: absolute; right: 20px;">
+            <n-button type="info" size="large">
+                生成文档
+            </n-button>
+        </div>
+    </div>
+</template>
+
+<style scoped>
+
+</style>
