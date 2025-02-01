@@ -179,6 +179,28 @@ const menuOptions = [
                     </n-card>
                 </div>
             </div>
+
+            <div style="margin-top: 10px">
+                <n-card>
+                    <div>
+                        <div style="display: flex; align-items: center;">
+                            <div>
+                                状态码：
+                            </div>
+                            <n-tag type="success" round>
+                                200
+                            </n-tag>
+                            <div style="margin-left: 20px">
+                                格式：JSON
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 15px">
+                        <n-input placeholder="返回响应" type="textarea" :autosize="{minRows: 10,maxRows: 30,}"/>
+                    </div>
+                </n-card>
+            </div>
         </div>
     </div>
 </template>

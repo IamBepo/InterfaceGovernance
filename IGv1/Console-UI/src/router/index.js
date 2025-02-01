@@ -1,6 +1,7 @@
 import { createRouter,createWebHistory } from "vue-router";
 import View from '../view/View.vue'
 import InterfaceContent from "../view/major/InterfaceContent.vue";
+import HeartbeatMonitor from "../view/major/HeartbeatMonitor.vue";
 
 
 const router = createRouter({
@@ -13,9 +14,14 @@ const router = createRouter({
             children:[
                 {
                     path:'/',
+                    name:'HeartbeatMonitor',
+                    component:HeartbeatMonitor
+                },
+                {
+                    path:'/ic',
                     name:'InterfaceContent',
                     component:InterfaceContent
-                },
+                }
             ]
         },
     ]
