@@ -12,6 +12,7 @@ import java.util.*;
 
 public class InterfaceGovernanceRunner implements CommandLineRunner {
     private final String basePackage;
+    public static Map<String, Set<Map<String, Object>>> apiInfo = new HashMap<>();  // 存储接口类和方法的信息
 
     public InterfaceGovernanceRunner(String basePackage) {
         this.basePackage = basePackage;
@@ -29,8 +30,6 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
      * 接口扫描主入口
      */
     private void InterfaceScan() {
-        // 存储接口类和方法的信息
-        Map<String, Set<Map<String, Object>>> apiInfo = new HashMap<>();
 
         String packagePath = basePackage.replace(".", "/");
 

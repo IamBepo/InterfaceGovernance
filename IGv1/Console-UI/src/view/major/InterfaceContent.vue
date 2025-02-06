@@ -1,6 +1,16 @@
 <script setup>
-import { ref } from "vue";
+import {onMounted, ref} from "vue";
+import igApi from "../../api/IgApi";
 
+function getIGInfo() {
+    igApi.getIGInfo().then(res => {
+        console.log(res);
+    })
+}
+
+onMounted(() => {
+    getIGInfo();
+})
 
 const activeKey = ref(null);
 const menuOptions = [
