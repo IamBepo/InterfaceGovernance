@@ -29,7 +29,7 @@ axois.interceptors.response.use(
             message.error("网络似乎出现了问题.");
             return Promise.reject('error')
         } else {
-            return response
+            return res
         }
     },
     error => {

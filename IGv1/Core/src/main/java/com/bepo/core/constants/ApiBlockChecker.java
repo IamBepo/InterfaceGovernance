@@ -18,7 +18,7 @@ public class ApiBlockChecker {
      */
     @Scheduled(fixedRate = 3000)
     public void checkBlockedApis() {
-        log.info("🔄 开始检测是否有接口因高并发阻塞...");
+        log.info("开始检测是否有接口因高并发阻塞...");
 
         long currentTime = System.currentTimeMillis();
         Map<String, Long> executingApis = ApiBlockMonitorAspect.getApiExecutionTime();
@@ -29,8 +29,8 @@ public class ApiBlockChecker {
             long elapsedTime = (currentTime - startTime) / 1000; // 秒
 
             if (elapsedTime >= 5) { // 如果 API 运行时间 >= 5 秒，判定为阻塞
-                apiBlockStatus.put(api, "⛔ 阻塞, 持续时间: " + elapsedTime + " 秒");
-                log.warn("⚠️ API {} 已阻塞 {} 秒", api, elapsedTime);
+                apiBlockStatus.put(api, "阻塞, 持续时间: " + elapsedTime + " 秒");
+                log.warn("API {} 已阻塞 {} 秒", api, elapsedTime);
             }
         }
 

@@ -2,17 +2,21 @@ package com.bepo.core.runner;
 
 import com.bepo.core.anotation.ApiClass;
 import com.bepo.core.anotation.ApiMethod;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
+import java.text.Collator;
 import java.util.*;
 
+@Slf4j
 public class InterfaceGovernanceRunner implements CommandLineRunner {
     private final String basePackage;
-    public static Map<String, Set<Map<String, Object>>> apiInfo = new HashMap<>();  // 存储接口类和方法的信息
+    public static Map<String, List<Map<String, Object>>> apiInfo = new HashMap<>();  // 存储接口类和方法的信息
 
     public InterfaceGovernanceRunner(String basePackage) {
         this.basePackage = basePackage;
@@ -20,8 +24,8 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        System.out.println("Next InterfaceScan >>> ");
-        System.out.println("Scan Package Path: " + basePackage);
+        log.info("Next InterfaceScan >>> ");
+        log.info("Scan Package Path: " + basePackage);
         InterfaceScan();
 
     }
@@ -48,11 +52,22 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
                 // 查找带有 @ApiClass 的类
                 if (clazz.isAnnotationPresent(ApiClass.class)) {
                     // 存储类信息
-                    Set<Map<String, Object>> methodInfoSet = new HashSet<>();
-                    apiInfo.put(clazz.getName(), methodInfoSet);
+                    List<Map<String, Object>> methodInfoList = new ArrayList<>();
+                    apiInfo.put(clazz.getAnnotation(ApiClass.class).name(), methodInfoList);
+
+                    // 获取类上的 @RequestMapping 作为基础路径
+                    StringBuffer baseUrl = new StringBuffer();
+                    if (clazz.isAnnotationPresent(RequestMapping.class)) {
+                        RequestMapping classMapping = clazz.getAnnotation(RequestMapping.class);
+                        if (classMapping.value().length > 0) {
+                            baseUrl.append(classMapping.value()[0]); // 取第一个路径
+                        }
+                    }
 
                     // 查找带有 @ApiMethod 注解的方法
-                    for (Method method : clazz.getDeclaredMethods()) {
+                    Method[] methods = clazz.getDeclaredMethods();
+                    Arrays.sort(methods, (m1, m2) -> compareMethodNames(m1.getName(), m2.getName()));
+                    for (Method method : methods) {
                         if (method.isAnnotationPresent(ApiMethod.class)) {
                             ApiMethod apiMethodAnnotation = method.getAnnotation(ApiMethod.class);
 
@@ -63,6 +78,10 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
                             String apiHttpMethod = apiMethodAnnotation.method();
                             String apiMethodDescription = apiMethodAnnotation.description();
 
+                            // 获取方法上的 @xMapping
+                            StringBuffer url = new StringBuffer(baseUrl);
+                            url.append(getMethodMappingUrl(method));
+
                             // 存储方法信息
                             Map<String, Object> methodInfo = new HashMap<>();
                             methodInfo.put("methodName", methodName);
@@ -70,23 +89,25 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
                             methodInfo.put("params", apiParams);
                             methodInfo.put("httpMethod", apiHttpMethod);
                             methodInfo.put("description", apiMethodDescription);
+                            methodInfo.put("url", url.toString());
 
-                            methodInfoSet.add(methodInfo);
+                            methodInfoList.add(methodInfo);
                         }
                     }
                 }
             }
 
             // 打印收集到的 API 信息
-            System.out.println("InterfaceScan Done：");
-            for (Map.Entry<String, Set<Map<String, Object>>> entry : apiInfo.entrySet()) {
-                System.out.println("ClassName: " + entry.getKey());
+            log.info("InterfaceScan Done：");
+            for (Map.Entry<String, List<Map<String, Object>>> entry : apiInfo.entrySet()) {
+                log.info("ClassName: " + entry.getKey());
                 for (Map<String, Object> methodInfo : entry.getValue()) {
-                    System.out.println("  -MethodName: " + methodInfo.get("methodName"));
-                    System.out.println("    API Name: " + methodInfo.get("apiName"));
-                    System.out.println("    API Params: " + String.join(", ", (String[]) methodInfo.get("params")));
-                    System.out.println("    API HTTP Method: " + methodInfo.get("httpMethod"));
-                    System.out.println("    API Description: " + methodInfo.get("description"));
+                    log.info("  -MethodName: " + methodInfo.get("methodName"));
+                    log.info("    API Name: " + methodInfo.get("apiName"));
+                    log.info("    API Params: " + String.join(", ", (String[]) methodInfo.get("params")));
+                    log.info("    API HTTP Method: " + methodInfo.get("httpMethod"));
+                    log.info("    API Description: " + methodInfo.get("description"));
+                    log.info("    API Url: " + methodInfo.get("url"));
                 }
             }
 
@@ -125,5 +146,57 @@ public class InterfaceGovernanceRunner implements CommandLineRunner {
             }
         }
         return classes;
+    }
+
+    /**
+     * 获取方法上的 URL 映射
+     */
+    private static String getMethodMappingUrl(Method method) {
+        StringBuffer url = new StringBuffer();
+
+        if (method.isAnnotationPresent(GetMapping.class)) {
+            url.append(method.getAnnotation(GetMapping.class).value()[0]);
+        } else if (method.isAnnotationPresent(PostMapping.class)) {
+            url.append(method.getAnnotation(PostMapping.class).value()[0]);
+        } else if (method.isAnnotationPresent(PutMapping.class)) {
+            url.append(method.getAnnotation(PutMapping.class).value()[0]);
+        } else if (method.isAnnotationPresent(DeleteMapping.class)) {
+            url.append(method.getAnnotation(DeleteMapping.class).value()[0]);
+        } else if (method.isAnnotationPresent(RequestMapping.class)) {
+            url.append(method.getAnnotation(RequestMapping.class).value()[0]);
+        }
+
+        // **移除 `{}` 占位符**
+        String cleanUrl = url.toString().replaceAll("\\{.*?\\}", "");
+
+        // **移除结尾的 `/`**
+        if (cleanUrl.endsWith("/")) {
+            cleanUrl = cleanUrl.substring(0, cleanUrl.length() - 1);
+        }
+
+        return cleanUrl;
+    }
+
+    /**
+     * 自定义排序规则：q > a > u > d，其他按字母顺序
+     */
+    private static int compareMethodNames(String name1, String name2) {
+        List<Character> customOrder = Arrays.asList('q', 'a', 'u', 'd');
+
+        char c1 = Character.toLowerCase(name1.charAt(0));
+        char c2 = Character.toLowerCase(name2.charAt(0));
+
+        int index1 = customOrder.indexOf(c1);
+        int index2 = customOrder.indexOf(c2);
+
+        if (index1 != -1 && index2 != -1) {
+            return Integer.compare(index1, index2);
+        } else if (index1 != -1) {
+            return -1;
+        } else if (index2 != -1) {
+            return 1;
+        } else {
+            return Character.compare(c1, c2);
+        }
     }
 }

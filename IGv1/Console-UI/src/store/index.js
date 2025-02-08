@@ -2,11 +2,11 @@ import { createStore } from 'vuex'
 
 export default createStore({
     state: {
-        demo: '',
+        login_flag: true,
     },
     mutations: {
-        demoUpdate(state,value){
-            state.demo = value
+        showLogin(state,value){
+            state.login_flag = value
         },
     },
     actions: {
