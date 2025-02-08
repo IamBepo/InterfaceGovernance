@@ -13,4 +13,15 @@ export default {
             method: 'GET'
         })
     },
+
+    /**
+     * 获取心跳信息
+     * @returns {*}
+     */
+    getHeartInfo() {
+        return axios({
+            url: '/api/ig/get/heart',
+            method: 'GET'
+        })
+    },
 }

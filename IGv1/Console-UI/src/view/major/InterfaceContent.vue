@@ -1,7 +1,8 @@
 <script setup>
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import igApi from "../../api/IgApi";
 import axios from "axios";
+import store from '../../store'
 
 const interfaces = ref(null)
 const activeInterface = ref(null)
@@ -26,6 +27,10 @@ const interfaceMenuOptions = ref([
         ]
     },
 ])
+
+watch(interfaceMenuOptions, (newOptions) => {
+    store.dispatch("updateInterfaceMenuOptions", newOptions);
+}, { deep: true, immediate: true });
 
 const interfaceInfo = ref(null)
 const serverUrl = ref("http://localhost:8080")

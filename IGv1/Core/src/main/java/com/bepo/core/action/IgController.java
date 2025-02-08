@@ -1,6 +1,7 @@
 package com.bepo.core.action;
 
 import com.bepo.core.runner.InterfaceGovernanceRunner;
+import com.bepo.core.scheduled.ApiBlockChecker;
 import com.bepo.core.utils.Result;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,5 +16,10 @@ public class IgController {
     @GetMapping("/get/info")
     public Result getClassInfo(){
         return new Result<>().ok(InterfaceGovernanceRunner.apiInfo);
+    }
+
+    @GetMapping("/get/heart")
+    public Result getHeartInfo(){
+        return new Result<>().ok(ApiBlockChecker.apiBlockStatus);
     }
 }

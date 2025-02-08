@@ -18,6 +18,11 @@ public class UserController {
         HashMap<String, String> user = new HashMap<>();
         user.put("username", "bepo");
         user.put("password", "123456");
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         return new Result<>().ok(user);
     }
 

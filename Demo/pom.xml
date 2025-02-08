@@ -28,5 +28,10 @@
       <artifactId>Core</artifactId>
       <version>1.0</version>
     </dependency>
+    <!-- 监控 -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
   </dependencies>
 </project>
