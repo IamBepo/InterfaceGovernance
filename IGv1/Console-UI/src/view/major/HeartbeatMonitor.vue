@@ -79,7 +79,7 @@ onMounted(() => {
                         <div style="font-size: 20px"> {{ apis[0].top }}</div>
                     </template>
                     <template #header-extra>
-                        <div style="font-size: 17px; color: red" v-if="apis.some(api => api.status === '阻塞')">
+                        <div style="font-size: 17px; color: red" v-if="apis.some(api => api.status === '[×] 阻塞')">
                             存在阻塞接口
                         </div>
                     </template>

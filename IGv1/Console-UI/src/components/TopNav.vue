@@ -34,7 +34,7 @@ const to = (path) => {
 
         <div style="margin-left: auto; position: absolute; right: 20px;">
             <n-button type="info" size="large">
-                生成文档
+                生成PDF
             </n-button>
         </div>
     </div>
